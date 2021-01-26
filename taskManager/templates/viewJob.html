@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Handy Helper 2!</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <h2 class="col">Hello {{loggedUser.firstName}}! These are the job details!</h2>
+            <a class="col-2" href={% url 'taskManager:dashboard' %}>Dashboard</a>
+            <a class="col-2" href={% url 'taskManager:logout' %}>Logout</a>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                    <p class="alert alert-danger role=alert">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <h2>{{task.title}}</h2>
+        <ul>
+            <li>Description: {{task.desc}}</li>
+            <li>Location: {{task.location}}</li>
+            <li>Posted by: {{task.addedBy.firstName}}</li>
+            <li>Posted on: {{task.createdAt}}</li>
+            <li>
+                Categories: {% for category in task.categories.all %}{{category.title}} | {% endfor %}
+            </li>
+        </ul>
+        {% if task.owner.id != loggedUser.id %}
+            <a class="col" href={% url 'taskManager:claimTask' taskID=task.id %}>Claim Task</a>
+        {% endif %}
+        {% if task.owner.id == loggedUser.id %}
+            <a class="col" href={% url 'taskManager:releaseTask' taskID=task.id %}>Give Up Task</a>
+        {% endif %}
+    </div>
+</body>
+</html>

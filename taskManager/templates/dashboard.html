@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>User Dashboard!</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <h2 class="col">Hello {{loggedUser.firstName}}!</h2>
+            <a class="col-2" href={% url 'taskManager:logout' %}>Logout</a>
+            <form>
+                <button class="btn btn-primary" formaction={% url 'taskManager:newJobForm' %}>New Job!</button
+            </form>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                    <p class="alert alert-danger role=alert">{{ message }}</p>
+                {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                    <p class="alert alert-success role=alert">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <div class="row">
+            <h2 class="col">Everyone's Jobs</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Job</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                        {% if task.owner == null %}
+                        <tr scope="row">
+                            <td>{{task.title}}</td>
+                            <td>{{task.location}}</td>
+                            <td>
+                                <a class="col" href={% url 'taskManager:viewTask' taskID=task.id %}>View</a>
+                                {% if task.addedBy.id == loggedUser.id %}
+                                    <a class="col" href={% url 'taskManager:removeTaskForm' taskID=task.id %}>Remove</a>
+                                    <a class="col" href={% url 'taskManager:editTaskForm' taskID=task.id %}>Edit</a>
+                                {% endif %}
+                                <a class="col" href={% url 'taskManager:claimTask' taskID=task.id %}>Claim</a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                <tbody>
+            </table>
+        </div>
+        <div class="row">
+            <h2 class="col">{{loggedUser.firstName}}'s Jobs</h2>
+            <table class="table">
+                <tr>
+                    <th>Job</th>
+                    <th>Actions</th>
+                </tr>
+                {% for task in loggedUser.tasksOwned.all %}
+                    <tr>
+                        <td>{{task.title}}</td>
+                        <td>
+                            <a class="col" href={% url 'taskManager:viewTask' taskID=task.id %}>View</a>
+                            <a class="col" href={% url 'taskManager:completeTask' taskID=task.id %}>Done</a>
+                            <a class="col" href={% url 'taskManager:releaseTask' taskID=task.id %}>Give Up</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>
